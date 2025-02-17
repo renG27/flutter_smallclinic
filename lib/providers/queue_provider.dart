@@ -80,15 +80,18 @@ class QueueProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updatePatientStatus(Patient patient, String status) async {
+ Future<void> updatePatientStatus(Patient patient, String status) async {
     patient.status = status;
     await dbHelper.updatePatientStatus(patient.id, status);
 
-    if (status == 'Done' || status == 'Skipped') {
+    if (status == 'Done' || status == 'Skipped' || status == 'Deleted') {
       patient.isActive = false;
       await dbHelper.updatePatientIsActive(patient.id, false);
+    } else {
+      patient.isActive = true;
+      await dbHelper.updatePatientIsActive(patient.id, true);
     }
-    
+
     loadQueue(); // Reload the queue to reflect changes
     notifyListeners();
   }
